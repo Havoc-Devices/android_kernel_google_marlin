@@ -4680,7 +4680,7 @@ static inline bool energy_aware(void)
  */
 static unsigned long __cpu_norm_util(int cpu, unsigned long capacity, int delta)
 {
-	int util = __cpu_util(cpu, delta, UTIL_EST);
+	int util = __cpu_util(cpu, delta);
 
 	if (util >= capacity)
 		return SCHED_CAPACITY_SCALE;
@@ -4705,7 +4705,7 @@ unsigned long group_max_util(struct energy_env *eenv)
 
 	for_each_cpu(i, sched_group_cpus(eenv->sg_cap)) {
 		delta = calc_util_delta(eenv, i);
-		max_util = max(max_util, __cpu_util(i, delta, UTIL_EST));
+		max_util = max(max_util, __cpu_util(i, delta));
 	}
 
 	return max_util;
@@ -5204,6 +5204,18 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p, int sync)
 	return 1;
 }
 
+static inline unsigned long task_util(struct task_struct *p)
+{
+
+#ifdef CONFIG_SCHED_WALT
+	if (!walt_disabled && sysctl_sched_use_walt_task_util) {
+		unsigned long demand = p->ravg.demand;
+		return (demand << 10) / walt_ravg_window;
+	}
+#endif
+	return p->se.avg.util_avg;
+}
+
 unsigned int capacity_margin = 1280; /* ~20% margin */
 
 static inline bool __task_fits(struct task_struct *p, int cpu, int util)
@@ -5231,7 +5243,7 @@ static inline bool task_fits_max(struct task_struct *p, int cpu)
 
 static inline bool task_fits_spare(struct task_struct *p, int cpu)
 {
-	return __task_fits(p, cpu, cpu_util(cpu, UTIL_EST));
+	return __task_fits(p, cpu, cpu_util(cpu));
 }
 
 static bool cpu_overutilized(int cpu)
@@ -5402,7 +5414,7 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
 			 * Look for group which has most spare capacity on a
 			 * single cpu.
 			 */
-			spare_capacity = capacity_of(i) - cpu_util(i, UTIL_EST);
+			spare_capacity = capacity_of(i) - cpu_util(i);
 			if (spare_capacity > max_spare_capacity) {
 				max_spare_capacity = spare_capacity;
 				spare_group = group;
@@ -5593,7 +5605,7 @@ static inline int find_best_target(struct task_struct *p, bool boosted, bool pre
 		 * so prev_cpu will receive a negative bias due to the double
 		 * accounting. However, the blocked utilization may be zero.
 		 */
-		new_util = cpu_util(i, UTIL_EST) + task_util(p, UTIL_EST);
+		new_util = cpu_util(i) + task_util_boosted;
 
 		/*
 		 * Ensure minimum capacity to grant the required boost.
@@ -5709,6 +5721,7 @@ static int energy_aware_wake_cpu(struct task_struct *p, int target)
 				sg_target = sg;
 				target_max_cap = capacity_of(max_cap_cpu);
 			}
+
 		} while (sg = sg->next, sg != sd->groups);
 
 		/* Find cpu with sufficient capacity */
@@ -5719,7 +5732,7 @@ static int energy_aware_wake_cpu(struct task_struct *p, int target)
 			 * so prev_cpu will receive a negative bias due to the double
 			 * accounting. However, the blocked utilization may be zero.
 			 */
-			new_util = cpu_util(i, UTIL_EST) + task_util(p, UTIL_EST);
+			new_util = cpu_util(i) + task_util_boosted;
 
 			/*
 			 * Ensure minimum capacity to grant the required boost.
@@ -5756,7 +5769,7 @@ static int energy_aware_wake_cpu(struct task_struct *p, int target)
 
 	if (target_cpu != task_cpu(p)) {
 		struct energy_env eenv = {
-			.util_delta	= task_util(p, UTIL_EST),
+			.util_delta	= task_util(p),
 			.src_cpu	= task_cpu(p),
 			.dst_cpu	= target_cpu,
 			.task		= p,
@@ -7312,7 +7325,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 			load = source_load(i, load_idx);
 
 		sgs->group_load += load;
-		sgs->group_util += cpu_util(i, UTIL_AVG);
+		sgs->group_util += cpu_util(i);
 		sgs->sum_nr_running += rq->cfs.h_nr_running;
 
 		nr_running = rq->nr_running;
