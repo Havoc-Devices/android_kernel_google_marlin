@@ -701,11 +701,11 @@ static int sugov_init(struct cpufreq_policy *policy)
 	if (ret)
 		goto fail;
 
- out:
+out:
 	mutex_unlock(&global_tunables_lock);
 	return 0;
 
- fail:
+fail:
 	policy->governor_data = NULL;
 	sugov_tunables_free(tunables);
 
