@@ -474,91 +474,7 @@ binder_proc_unlock(struct binder_proc *proc, int line)
 {
 	binder_debug(BINDER_DEBUG_SPINLOCKS,
 		     "%s: line=%d\n", __func__, line);
-<<<<<<< HEAD
 	spin_unlock(&proc->proc_lock);
-=======
-	if (proc)
-		binder_inner_proc_unlock(proc);
-	spin_unlock(&node->lock);
-}
-
-static bool binder_worklist_empty_ilocked(struct list_head *list)
-{
-	return list_empty(list);
-}
-
-/**
- * binder_worklist_empty() - Check if no items on the work list
- * @proc:       binder_proc associated with list
- * @list:	list to check
- *
- * Return: true if there are no items on list, else false
- */
-static bool binder_worklist_empty(struct binder_proc *proc,
-				  struct list_head *list)
-{
-	bool ret;
-
-	binder_inner_proc_lock(proc);
-	ret = binder_worklist_empty_ilocked(list);
-	binder_inner_proc_unlock(proc);
-	return ret;
-}
-
-/**
- * binder_enqueue_work_ilocked() - Add an item to the work list
- * @work:         struct binder_work to add to list
- * @target_list:  list to add work to
- *
- * Adds the work to the specified list. Asserts that work
- * is not already on a list.
- *
- * Requires the proc->inner_lock to be held.
- */
-static void
-binder_enqueue_work_ilocked(struct binder_work *work,
-			   struct list_head *target_list)
-{
-	BUG_ON(target_list == NULL);
-	BUG_ON(work->entry.next && !list_empty(&work->entry));
-	list_add_tail(&work->entry, target_list);
-}
-
-/**
- * binder_enqueue_deferred_thread_work_ilocked() - Add deferred thread work
- * @thread:       thread to queue work to
- * @work:         struct binder_work to add to list
- *
- * Adds the work to the todo list of the thread. Doesn't set the process_todo
- * flag, which means that (if it wasn't already set) the thread will go to
- * sleep without handling this work when it calls read.
- *
- * Requires the proc->inner_lock to be held.
- */
-static void
-binder_enqueue_deferred_thread_work_ilocked(struct binder_thread *thread,
-					    struct binder_work *work)
-{
-	binder_enqueue_work_ilocked(work, &thread->todo);
-}
-
-/**
- * binder_enqueue_thread_work_ilocked() - Add an item to the thread work list
- * @thread:       thread to queue work to
- * @work:         struct binder_work to add to list
- *
- * Adds the work to the todo list of the thread, and enables processing
- * of the todo queue.
- *
- * Requires the proc->inner_lock to be held.
- */
-static void
-binder_enqueue_thread_work_ilocked(struct binder_thread *thread,
-				   struct binder_work *work)
-{
-	binder_enqueue_work_ilocked(work, &thread->todo);
-	thread->process_todo = true;
->>>>>>> eab75e2e17c... ANDROID: binder: clarify deferred thread work.
 }
 
 static inline void
@@ -2563,19 +2479,7 @@ static void binder_transaction(struct binder_proc *proc,
 		binder_set_priority(current, saved_priority, true /*restore*/);
 	} else if (!(t->flags & TF_ONE_WAY)) {
 		BUG_ON(t->buffer->async_transaction != 0);
-<<<<<<< HEAD
 		binder_proc_lock(thread->proc, __LINE__);
-=======
-		binder_inner_proc_lock(proc);
-		/*
-		 * Defer the TRANSACTION_COMPLETE, so we don't return to
-		 * userspace immediately; this allows the target process to
-		 * immediately start processing this transaction, reducing
-		 * latency. We will then return the TRANSACTION_COMPLETE when
-		 * the target replies (or there is an error).
-		 */
-		binder_enqueue_deferred_thread_work_ilocked(thread, tcomplete);
->>>>>>> eab75e2e17c... ANDROID: binder: clarify deferred thread work.
 		t->need_reply = 1;
 		t->from_parent = thread->transaction_stack;
 		thread->transaction_stack = t;
