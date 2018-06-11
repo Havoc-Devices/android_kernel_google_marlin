@@ -476,7 +476,6 @@ fail_cmd:
 	return ret;
 }
 
-//HTC_AUD_START
 int q6adm_enable_effect(u16 port_id, int copp_idx, uint32_t payload_size, void *payload)
 {
 	u8 *q6_cmd = NULL;
