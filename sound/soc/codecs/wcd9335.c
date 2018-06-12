@@ -44,6 +44,7 @@
 #include "wcd9xxx-resmgr-v2.h"
 #include "wcd_cpe_core.h"
 #include "wcdcal-hwdep.h"
+<<<<<<< HEAD
 //HTC_AUD_START
 #ifdef CONFIG_HTC_HEADSET_MGR
 #include <sound/htc_acoustic_alsa.h>
@@ -55,6 +56,11 @@
 #define pr_info(fmt, ...) pr_aud_info(fmt, ##__VA_ARGS__)
 #define pr_err(fmt, ...) pr_aud_err(fmt, ##__VA_ARGS__)
 //HYC_AUD_END
+=======
+#include <linux/proc_fs.h>
+#include <../drivers/base/regmap/internal.h>
+#include <linux/switch.h>
+>>>>>>> 8583e062cf87... Initial AudioWizard bringup
 
 #define TASHA_RX_PORT_START_NUMBER  16
 
@@ -149,6 +155,12 @@ static int cpe_debug_mode;
 #define DAPM_MICBIAS3_STANDALONE "MIC BIAS3 Standalone"
 #define DAPM_MICBIAS4_STANDALONE "MIC BIAS4 Standalone"
 
+<<<<<<< HEAD
+=======
+int g_DebugMode = 1;
+struct switch_dev *g_audiowizard_force_preset_sdev = NULL;
+#define DAPM_LDO_H_STANDALONE "LDO_H"
+>>>>>>> 8583e062cf87... Initial AudioWizard bringup
 module_param(cpe_debug_mode, int,
 	     S_IRUGO | S_IWUSR | S_IWGRP);
 MODULE_PARM_DESC(cpe_debug_mode, "boot cpe in debug mode");
@@ -13462,7 +13474,9 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 	snd_soc_dapm_disable_pin(dapm, "ANC EAR");
 	mutex_unlock(&codec->mutex);
 	snd_soc_dapm_sync(dapm);
+        priv_headset_type = tasha;
 
+<<<<<<< HEAD
 #ifdef CONFIG_SOUND_CONTROL
 	sound_control_kobj = kobject_create_and_add("sound_control", kernel_kobj);
 	if (sound_control_kobj == NULL) {
@@ -13478,6 +13492,22 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 		sysfs_remove_file(sound_control_kobj, &headphone_pa_gain_attribute.attr);
 #endif
 
+=======
+	/* ASUS_BSP Paul +++ */
+        if (!g_audiowizard_force_preset_sdev) {
+		g_audiowizard_force_preset_sdev = kzalloc(sizeof(struct switch_dev), GFP_KERNEL);
+		if (!g_audiowizard_force_preset_sdev) {
+			pr_err("%s: failed to allocate switch_dev\n", __func__);
+			ret = -ENOMEM;
+		}
+		g_audiowizard_force_preset_sdev->name = "audiowizard_force_preset";
+		g_audiowizard_force_preset_sdev->state = 0;
+		ret = switch_dev_register(g_audiowizard_force_preset_sdev);
+		if (ret < 0)
+			pr_err("%s: failed to register switch audiowizard_force_preset\n", __func__);
+	}
+	/* ASUS_BSP Paul --- */
+>>>>>>> 8583e062cf87... Initial AudioWizard bringup
 	return ret;
 
 err_pdata:
