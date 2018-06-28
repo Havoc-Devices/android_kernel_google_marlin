@@ -44,7 +44,6 @@
 #include "wcd9xxx-resmgr-v2.h"
 #include "wcd_cpe_core.h"
 #include "wcdcal-hwdep.h"
-<<<<<<< HEAD
 //HTC_AUD_START
 #ifdef CONFIG_HTC_HEADSET_MGR
 #include <sound/htc_acoustic_alsa.h>
@@ -56,11 +55,9 @@
 #define pr_info(fmt, ...) pr_aud_info(fmt, ##__VA_ARGS__)
 #define pr_err(fmt, ...) pr_aud_err(fmt, ##__VA_ARGS__)
 //HYC_AUD_END
-=======
 #include <linux/proc_fs.h>
 #include <../drivers/base/regmap/internal.h>
-#include <linux/switch.h>
->>>>>>> 8583e062cf87... Initial AudioWizard bringup
+#include <linux/switch.h
 
 #define TASHA_RX_PORT_START_NUMBER  16
 
@@ -155,12 +152,9 @@ static int cpe_debug_mode;
 #define DAPM_MICBIAS3_STANDALONE "MIC BIAS3 Standalone"
 #define DAPM_MICBIAS4_STANDALONE "MIC BIAS4 Standalone"
 
-<<<<<<< HEAD
-=======
 int g_DebugMode = 1;
 struct switch_dev *g_audiowizard_force_preset_sdev = NULL;
 #define DAPM_LDO_H_STANDALONE "LDO_H"
->>>>>>> 8583e062cf87... Initial AudioWizard bringup
 module_param(cpe_debug_mode, int,
 	     S_IRUGO | S_IWUSR | S_IWGRP);
 MODULE_PARM_DESC(cpe_debug_mode, "boot cpe in debug mode");
