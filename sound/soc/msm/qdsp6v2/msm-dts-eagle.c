@@ -197,7 +197,10 @@ static struct param_outband _po_NT;
 #define SEC_BLOB_MAX_CNT 10
 #define SEC_BLOB_MAX_SIZE 0x4004 /*extra 4 for size*/
 static char *_sec_blob[SEC_BLOB_MAX_CNT];
+<<<<<<< HEAD
+=======
 struct mutex _sec_lock;
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 
 /* multi-copp support */
 static int _cidx[AFE_MAX_PORTS] = {-1};
@@ -1240,21 +1243,27 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 				   __func__, target, SEC_BLOB_MAX_CNT);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
 		if (_sec_blob[target] == NULL) {
 			eagle_ioctl_err("%s: license index %u never initialized",
 				   __func__, target);
+=======
 		mutex_lock(&_sec_lock);
 		if (_sec_blob[target] == NULL) {
 			eagle_ioctl_err("%s: license index %u never initialized",
 				   __func__, target);
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			return -EINVAL;
 		}
 		size = ((u32 *)_sec_blob[target])[0];
 		if ((size == 0) || (size > SEC_BLOB_MAX_SIZE)) {
 			eagle_ioctl_err("%s: license size %u for index %u invalid (min size is 1, max size is %u)",
 				   __func__, size, target, SEC_BLOB_MAX_SIZE);
+<<<<<<< HEAD
+=======
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			return -EINVAL;
 		}
 		if (size_only) {
@@ -1264,19 +1273,28 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 				 (void *)&size, sizeof(size))) {
 				eagle_ioctl_err("%s: error copying license size",
 						__func__);
+<<<<<<< HEAD
+=======
 				mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 				return -EFAULT;
 			}
 		} else if (copy_to_user((void *)(((char *)arg)+sizeof(target)),
 			   (void *)&(((s32 *)_sec_blob[target])[1]), size)) {
 			eagle_ioctl_err("%s: error copying license data",
 				__func__);
+<<<<<<< HEAD
+=======
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			return -EFAULT;
 		} else
 			eagle_ioctl_info("%s: license file %u bytes long from license index %u returned to user",
 				  __func__, size, target);
+<<<<<<< HEAD
+=======
 		mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 		break;
 	}
 	case DTS_EAGLE_IOCTL_SET_LICENSE: {
@@ -1294,19 +1312,26 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 				   __func__, target[0], SEC_BLOB_MAX_CNT-1);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
 		mutex_lock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 		if (target[1] == 0) {
 			eagle_ioctl_dbg("%s: request to free license index %u",
 				 __func__, target[0]);
 			kfree(_sec_blob[target[0]]);
 			_sec_blob[target[0]] = NULL;
+<<<<<<< HEAD
+=======
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			break;
 		}
 		if ((target[1] == 0) || (target[1] >= SEC_BLOB_MAX_SIZE)) {
 			eagle_ioctl_err("%s: license size %u for index %u invalid (min size is 1, max size is %u)",
 				__func__, target[1], target[0],
 				SEC_BLOB_MAX_SIZE);
+<<<<<<< HEAD
 			return -EINVAL;
 		}
 		if (_sec_blob[target[0]] != NULL) {
@@ -1316,6 +1341,7 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 				kfree(_sec_blob[target[0]]);
 				_sec_blob[target[0]] = NULL;
 			}
+=======
 			mutex_unlock(&_sec_lock);
 			return -EINVAL;
 		}
@@ -1324,6 +1350,7 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 				 __func__, target[0]);
 			kfree(_sec_blob[target[0]]);
 			_sec_blob[target[0]] = NULL;
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 		}
 		eagle_ioctl_dbg("%s: allocating %u bytes for license index %u",
 				__func__, target[1], target[0]);
@@ -1331,7 +1358,10 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 		if (!_sec_blob[target[0]]) {
 			eagle_ioctl_err("%s: error allocating license index %u (kzalloc failed on %u bytes)",
 					__func__, target[0], target[1]);
+<<<<<<< HEAD
+=======
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			return -ENOMEM;
 		}
 		((u32 *)_sec_blob[target[0]])[0] = target[1];
@@ -1344,12 +1374,18 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 					((char *)arg)+sizeof(target),
 					&(((u32 *)_sec_blob[target[0]])[1]),
 					target[1]);
+<<<<<<< HEAD
+=======
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			return -EFAULT;
 		} else
 			eagle_ioctl_info("%s: license file %u bytes long copied to index license index %u",
 				  __func__, target[1], target[0]);
+<<<<<<< HEAD
+=======
 		mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 		break;
 	}
 	case DTS_EAGLE_IOCTL_SEND_LICENSE: {
@@ -1367,12 +1403,18 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 					__func__, target, SEC_BLOB_MAX_CNT-1);
 			return -EINVAL;
 		}
+<<<<<<< HEAD
+=======
 		mutex_lock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 		if (!_sec_blob[target] ||
 		    ((u32 *)_sec_blob[target])[0] == 0) {
 			eagle_ioctl_err("%s: license index %u is invalid",
 				__func__, target);
+<<<<<<< HEAD
+=======
 			mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 			return -EINVAL;
 		}
 		if (core_dts_eagle_set(((s32 *)_sec_blob[target])[0],
@@ -1382,7 +1424,10 @@ int msm_dts_eagle_ioctl(unsigned int cmd, unsigned long arg)
 		else
 			eagle_ioctl_info("%s: core_dts_eagle_set succeeded with id = %u",
 				 __func__, target);
+<<<<<<< HEAD
+=======
 		mutex_unlock(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 		break;
 	}
 	case DTS_EAGLE_IOCTL_SET_VOLUME_COMMANDS: {
@@ -1628,7 +1673,10 @@ int msm_dts_eagle_pcm_new(struct snd_soc_pcm_runtime *runtime)
 		_init_cb_descs();
 		_reg_ion_mem();
 	}
+<<<<<<< HEAD
+=======
 	mutex_init(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 	return 0;
 }
 
@@ -1645,7 +1693,10 @@ void msm_dts_eagle_pcm_free(struct snd_pcm *pcm)
 	if (!--_ref_cnt)
 		_unreg_ion_mem();
 	vfree(_depc);
+<<<<<<< HEAD
+=======
 	mutex_destroy(&_sec_lock);
+>>>>>>> 4d2ca9a91ced... sound: DTS-Eagle integration
 }
 
 MODULE_DESCRIPTION("DTS EAGLE platform driver");
