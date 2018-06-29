@@ -6503,6 +6503,31 @@ static void init_sched_energy(int cpu, struct sched_domain *sd,
 	sd->groups->sge = fn(cpu);
 }
 
+<<<<<<< HEAD
+#ifdef CONFIG_SCHED_DEBUG
+void set_energy_aware()
+{
+	sched_feat_set("ENERGY_AWARE");
+}
+void clear_energy_aware()
+{
+	sched_feat_set("NO_ENERGY_AWARE");
+}
+#else
+struct static_key __read_mostly __energy_aware = STATIC_KEY_INIT_FALSE;
+
+void set_energy_aware()
+{
+	static_key_slow_inc(&__energy_aware);
+}
+void clear_energy_aware()
+{
+	static_key_slow_dec(&__energy_aware);
+}
+#endif /* CONFIG_SCHED_DEBUG */
+
+=======
+>>>>>>> 333663378c7d... sched: Initialize energy data structures
 /*
  * Initializers for schedule domains
  * Non-inlined to reduce accumulated stack pressure in build_sched_domains()
